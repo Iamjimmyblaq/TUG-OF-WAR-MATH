@@ -1,0 +1,1524 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Tug of War: Mathematics - Nigeria Edition</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        html, body {
+            font-family: 'Nunito', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            height: 100vh;
+            width: 100vw;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Force landscape orientation message for portrait mobile */
+        @media screen and (orientation: portrait) and (max-width: 768px) {
+            .landscape-warning {
+                display: flex !important;
+            }
+            .game-wrapper {
+                display: none !important;
+            }
+        }
+
+        .landscape-warning {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #1a1a2e;
+            z-index: 9999;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            text-align: center;
+            padding: 20px;
+        }
+
+        .landscape-warning .phone-icon {
+            font-size: 80px;
+            animation: rotatePhone 2s infinite;
+            margin-bottom: 20px;
+        }
+
+        @keyframes rotatePhone {
+            0%, 100% { transform: rotate(0deg); }
+            50% { transform: rotate(90deg); }
+        }
+
+        .header {
+            width: 100%;
+            padding: 8px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(255,255,255,0.1);
+            backdrop-filter: blur(10px);
+            flex-shrink: 0;
+            height: 50px;
+        }
+
+        .home-btn {
+            background: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-weight: 700;
+            color: #667eea;
+            font-size: 12px;
+            transition: transform 0.2s;
+        }
+
+        .home-btn:hover {
+            transform: scale(1.05);
+        }
+
+        .title {
+            color: white;
+            font-size: 18px;
+            font-weight: 800;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+        }
+
+        .audio-controls {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .audio-btn {
+            background: rgba(255,255,255,0.2);
+            border: 2px solid white;
+            color: white;
+            padding: 6px 12px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 11px;
+            font-weight: 700;
+            transition: all 0.2s;
+        }
+
+        .audio-btn:hover {
+            background: white;
+            color: #667eea;
+        }
+
+        .audio-btn.muted {
+            opacity: 0.5;
+            text-decoration: line-through;
+        }
+
+        .nigeria-flag {
+            width: 30px;
+            height: 20px;
+            background: linear-gradient(to right, #008751 33%, white 33%, white 66%, #008751 66%);
+            border-radius: 3px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+        }
+
+        .game-wrapper {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .commentary-bar {
+            background: linear-gradient(90deg, #1a1a2e 0%, #16213e 50%, #1a1a2e 100%);
+            color: #FFD700;
+            padding: 8px 20px;
+            text-align: center;
+            font-weight: 700;
+            font-size: 14px;
+            min-height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-bottom: 2px solid #FFD700;
+            animation: glow 2s ease-in-out infinite alternate;
+            flex-shrink: 0;
+        }
+
+        @keyframes glow {
+            from { box-shadow: 0 0 5px #FFD700; }
+            to { box-shadow: 0 0 20px #FFD700, 0 0 30px #FFD700; }
+        }
+
+        .game-container {
+            display: flex;
+            justify-content: center;
+            align-items: stretch;
+            gap: 15px;
+            padding: 10px 15px;
+            flex: 1;
+            min-height: 0;
+        }
+
+        .team-panel {
+            background: white;
+            border-radius: 15px;
+            padding: 15px;
+            width: 220px;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+            flex-shrink: 0;
+        }
+
+        .team-panel.team1 {
+            border-left: 5px solid #2196F3;
+        }
+
+        .team-panel.team2 {
+            border-right: 5px solid #f44336;
+        }
+
+        .team-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+            padding: 8px;
+            border-radius: 8px;
+        }
+
+        .team1 .team-header {
+            background: #E3F2FD;
+            color: #1976D2;
+        }
+
+        .team2 .team-header {
+            background: #FFEBEE;
+            color: #C62828;
+        }
+
+        .team-name {
+            font-weight: 800;
+            font-size: 14px;
+        }
+
+        .score-badge {
+            background: white;
+            padding: 4px 12px;
+            border-radius: 15px;
+            font-weight: 700;
+            font-size: 16px;
+        }
+
+        .team1 .score-badge {
+            color: #2196F3;
+        }
+
+        .team2 .score-badge {
+            color: #f44336;
+        }
+
+        .problem {
+            text-align: center;
+            font-size: 28px;
+            font-weight: 800;
+            margin-bottom: 10px;
+            color: #333;
+            line-height: 1.2;
+        }
+
+        .answer-display {
+            width: 100%;
+            height: 45px;
+            border: 3px solid #ddd;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 10px;
+            background: #f8f9fa;
+            transition: all 0.3s;
+        }
+
+        .team1 .answer-display.correct {
+            border-color: #4CAF50;
+            background: #E8F5E9;
+            color: #2E7D32;
+            animation: pulseCorrect 0.5s;
+        }
+
+        .team1 .answer-display.wrong {
+            border-color: #f44336;
+            background: #FFEBEE;
+            color: #C62828;
+            animation: shake 0.5s;
+        }
+
+        .team2 .answer-display.correct {
+            border-color: #4CAF50;
+            background: #E8F5E9;
+            color: #2E7D32;
+            animation: pulseCorrect 0.5s;
+        }
+
+        .team2 .answer-display.wrong {
+            border-color: #f44336;
+            background: #FFEBEE;
+            color: #C62828;
+            animation: shake 0.5s;
+        }
+
+        @keyframes pulseCorrect {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+
+        .keypad {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+            flex: 1;
+        }
+
+        .key {
+            aspect-ratio: 1;
+            border: none;
+            border-radius: 10px;
+            font-size: 20px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.1s;
+            background: #f0f0f0;
+            color: #333;
+            touch-action: manipulation;
+        }
+
+        .key:hover {
+            transform: scale(1.05);
+            background: #e0e0e0;
+        }
+
+        .key:active {
+            transform: scale(0.95);
+        }
+
+        .key.clear {
+            background: #ff5252;
+            color: white;
+        }
+
+        .key.clear:hover {
+            background: #ff1744;
+        }
+
+        .key.submit {
+            background: #2196F3;
+            color: white;
+        }
+
+        .key.submit:hover {
+            background: #1976D2;
+        }
+
+        .team2 .key.submit {
+            background: #f44336;
+        }
+
+        .team2 .key.submit:hover {
+            background: #d32f2f;
+        }
+
+        .battlefield {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-width: 0;
+            position: relative;
+        }
+
+        .score-board {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 15px;
+            background: rgba(255,255,255,0.95);
+            padding: 10px 30px;
+            border-radius: 12px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.2);
+        }
+
+        .score-item {
+            text-align: center;
+        }
+
+        .score-label {
+            font-size: 11px;
+            color: #666;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+
+        .score-value {
+            font-size: 28px;
+            font-weight: 800;
+            line-height: 1;
+        }
+
+        .score-value.team1-score {
+            color: #2196F3;
+        }
+
+        .score-value.team2-score {
+            color: #f44336;
+        }
+
+        .timer {
+            font-size: 20px;
+            font-weight: 800;
+            color: #333;
+            background: #FFD700;
+            padding: 8px 20px;
+            border-radius: 20px;
+            min-width: 80px;
+            text-align: center;
+        }
+
+        .rope-container {
+            position: relative;
+            width: 100%;
+            height: 200px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .ground {
+            position: absolute;
+            bottom: 30px;
+            width: 80%;
+            height: 3px;
+            background: #8D6E63;
+            border-radius: 2px;
+        }
+
+        .center-line {
+            position: absolute;
+            bottom: 0;
+            width: 3px;
+            height: 100%;
+            background: repeating-linear-gradient(
+                to bottom,
+                #999 0px,
+                #999 8px,
+                transparent 8px,
+                transparent 16px
+            );
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        .rope {
+            position: absolute;
+            height: 6px;
+            background: linear-gradient(90deg, #5D4037 0%, #8D6E63 50%, #5D4037 100%);
+            width: 250px;
+            top: 50%;
+            transform: translateY(-50%);
+            transition: left 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+            left: 50%;
+            margin-left: -125px;
+            border-radius: 3px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+        }
+
+        .rope::before {
+            content: '';
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            width: 16px;
+            height: 16px;
+            background: #3E2723;
+            border-radius: 50%;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+        }
+
+        .team-figures {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+        }
+
+        .figure {
+            position: absolute;
+            bottom: 40px;
+            width: 50px;
+            height: 80px;
+            transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        .figure-team1 {
+            left: calc(50% - 125px);
+        }
+
+        .figure-team2 {
+            right: calc(50% - 125px);
+            transform: scaleX(-1);
+        }
+
+        .figure-body {
+            width: 100%;
+            height: 100%;
+            position: relative;
+        }
+
+        .head {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            position: absolute;
+            top: 0;
+            left: 13px;
+            background: #FFCC80;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+
+        .head::after {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 30%;
+            background: rgba(0,0,0,0.1);
+            top: 0;
+            border-radius: 50% 50% 0 0;
+        }
+
+        .torso {
+            width: 32px;
+            height: 40px;
+            position: absolute;
+            top: 20px;
+            left: 9px;
+            border-radius: 8px;
+        }
+
+        .team1-figures .torso {
+            background: #2196F3;
+        }
+
+        .team2-figures .torso {
+            background: #f44336;
+        }
+
+        .legs {
+            position: absolute;
+            bottom: 0;
+            left: 9px;
+            width: 32px;
+            height: 20px;
+            display: flex;
+            gap: 4px;
+        }
+
+        .leg {
+            width: 14px;
+            height: 100%;
+            background: #333;
+            border-radius: 0 0 4px 4px;
+        }
+
+        .arm {
+            position: absolute;
+            top: 24px;
+            width: 28px;
+            height: 6px;
+            background: #FFCC80;
+            border-radius: 3px;
+            transform-origin: left center;
+        }
+
+        .team1-figures .arm {
+            right: -20px;
+            transform: rotate(-25deg);
+        }
+
+        .team2-figures .arm {
+            left: -20px;
+            transform: rotate(25deg);
+        }
+
+        .flag {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 24px;
+            height: 32px;
+            background: linear-gradient(135deg, #FFD700 0%, #FFA000 100%);
+            clip-path: polygon(0 0, 100% 50%, 0 100%);
+            transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+            filter: drop-shadow(0 2px 5px rgba(0,0,0,0.3));
+        }
+
+        .winner-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.9);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            backdrop-filter: blur(10px);
+        }
+
+        .winner-modal.show {
+            display: flex;
+            animation: fadeIn 0.3s;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .winner-card {
+            background: white;
+            padding: 30px;
+            border-radius: 25px;
+            text-align: center;
+            max-width: 450px;
+            width: 90%;
+            animation: slideUp 0.5s;
+            box-shadow: 0 30px 60px rgba(0,0,0,0.5);
+        }
+
+        @keyframes slideUp {
+            from { transform: translateY(50px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .trophy {
+            font-size: 60px;
+            margin-bottom: 15px;
+            animation: bounce 1s infinite;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        .winner-title {
+            font-size: 32px;
+            font-weight: 800;
+            margin-bottom: 8px;
+        }
+
+        .team1-win {
+            color: #2196F3;
+        }
+
+        .team2-win {
+            color: #f44336;
+        }
+
+        .winner-subtitle {
+            font-size: 18px;
+            color: #666;
+            margin-bottom: 25px;
+        }
+
+        .stats {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin-bottom: 25px;
+        }
+
+        .stat {
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 32px;
+            font-weight: 800;
+            color: #333;
+        }
+
+        .stat-label {
+            font-size: 12px;
+            color: #666;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-weight: 700;
+        }
+
+        .play-again {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 35px;
+            font-size: 16px;
+            font-weight: 700;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .play-again:hover {
+            transform: scale(1.05);
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
+        }
+
+        .confetti {
+            position: fixed;
+            width: 8px;
+            height: 8px;
+            pointer-events: none;
+            animation: confetti-fall 3s linear forwards;
+        }
+
+        @keyframes confetti-fall {
+            0% {
+                transform: translateY(-100px) rotate(0deg);
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(100vh) rotate(720deg);
+                opacity: 0;
+            }
+        }
+
+        .pull-animation {
+            animation: pull 0.3s ease-in-out;
+        }
+
+        @keyframes pull {
+            0%, 100% { transform: translateY(-50%) scaleX(1); }
+            50% { transform: translateY(-50%) scaleX(1.1); }
+        }
+
+        /* Mobile optimizations */
+        @media (max-width: 900px) {
+            .team-panel {
+                width: 160px;
+                padding: 10px;
+            }
+            
+            .problem {
+                font-size: 22px;
+            }
+            
+            .key {
+                font-size: 16px;
+            }
+            
+            .title {
+                font-size: 14px;
+            }
+            
+            .commentary-bar {
+                font-size: 12px;
+                padding: 6px 10px;
+            }
+            
+            .score-board {
+                padding: 8px 20px;
+                gap: 15px;
+            }
+            
+            .score-value {
+                font-size: 22px;
+            }
+            
+            .timer {
+                font-size: 16px;
+                padding: 6px 15px;
+            }
+            
+            .rope-container {
+                height: 150px;
+            }
+            
+            .figure {
+                width: 40px;
+                height: 65px;
+            }
+            
+            .head {
+                width: 20px;
+                height: 20px;
+                left: 10px;
+            }
+            
+            .torso {
+                width: 26px;
+                height: 32px;
+                left: 7px;
+                top: 16px;
+            }
+            
+            .legs {
+                width: 26px;
+                left: 7px;
+                height: 16px;
+            }
+            
+            .leg {
+                width: 11px;
+            }
+            
+            .arm {
+                width: 22px;
+                height: 5px;
+                top: 20px;
+            }
+        }
+
+        /* Very small screens */
+        @media (max-width: 600px) {
+            .game-container {
+                gap: 8px;
+                padding: 5px;
+            }
+            
+            .team-panel {
+                width: 130px;
+                padding: 8px;
+                border-radius: 10px;
+            }
+            
+            .problem {
+                font-size: 18px;
+                margin-bottom: 6px;
+            }
+            
+            .answer-display {
+                height: 35px;
+                font-size: 18px;
+                margin-bottom: 6px;
+            }
+            
+            .keypad {
+                gap: 5px;
+            }
+            
+            .key {
+                font-size: 14px;
+                border-radius: 6px;
+            }
+            
+            .team-header {
+                padding: 5px;
+                margin-bottom: 8px;
+            }
+            
+            .team-name {
+                font-size: 11px;
+            }
+            
+            .score-badge {
+                font-size: 13px;
+                padding: 3px 8px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Landscape Warning -->
+    <div class="landscape-warning">
+        <div class="phone-icon">📱</div>
+        <h2>Please Rotate Your Device</h2>
+        <p>This game is best played in landscape mode.<br>Turn your phone sideways to continue!</p>
+    </div>
+
+    <!-- Main Game -->
+    <div class="game-wrapper">
+        <div class="header">
+            <button class="home-btn" onclick="location.reload()">🏠 HOME</button>
+            <h1 class="title">TUG OF WAR: MATHEMATICS 🇳🇬</h1>
+            <div style="display: flex; align-items: center; gap: 15px;">
+                <div class="audio-controls">
+                    <button class="audio-btn" id="musicBtn" onclick="toggleMusic()">🎵 Music</button>
+                    <button class="audio-btn" id="voiceBtn" onclick="toggleVoice()">🎙️ Commentator</button>
+                </div>
+                <div class="nigeria-flag"></div>
+            </div>
+        </div>
+
+        <div class="commentary-bar" id="commentary">Welcome to Tug of War Mathematics! May the best team win!</div>
+
+        <div class="game-container">
+            <!-- Team 1 Panel -->
+            <div class="team-panel team1">
+                <div class="team-header">
+                    <span class="team-name">Team 1</span>
+                    <span class="score-badge" id="badge1">0</span>
+                </div>
+                <div class="problem" id="problem1">7 + 4 = ?</div>
+                <div class="answer-display" id="display1"></div>
+                <div class="keypad">
+                    <button class="key" onclick="addDigit(1, 1)">1</button>
+                    <button class="key" onclick="addDigit(1, 2)">2</button>
+                    <button class="key" onclick="addDigit(1, 3)">3</button>
+                    <button class="key" onclick="addDigit(1, 4)">4</button>
+                    <button class="key" onclick="addDigit(1, 5)">5</button>
+                    <button class="key" onclick="addDigit(1, 6)">6</button>
+                    <button class="key" onclick="addDigit(1, 7)">7</button>
+                    <button class="key" onclick="addDigit(1, 8)">8</button>
+                    <button class="key" onclick="addDigit(1, 9)">9</button>
+                    <button class="key clear" onclick="clearAnswer(1)">✕</button>
+                    <button class="key" onclick="addDigit(1, 0)">0</button>
+                    <button class="key submit" onclick="submitAnswer(1)">✓</button>
+                </div>
+            </div>
+
+            <!-- Battlefield -->
+            <div class="battlefield">
+                <div class="score-board">
+                    <div class="score-item">
+                        <div class="score-label">Team 1</div>
+                        <div class="score-value team1-score" id="score1">0</div>
+                    </div>
+                    <div class="timer" id="timer">00:00</div>
+                    <div class="score-item">
+                        <div class="score-label">Team 2</div>
+                        <div class="score-value team2-score" id="score2">0</div>
+                    </div>
+                </div>
+                
+                <div class="rope-container">
+                    <div class="ground"></div>
+                    <div class="center-line"></div>
+                    <div class="team-figures team1-figures" id="figures1">
+                        <div class="figure figure-team1">
+                            <div class="figure-body">
+                                <div class="head"></div>
+                                <div class="torso"></div>
+                                <div class="arm"></div>
+                                <div class="legs">
+                                    <div class="leg"></div>
+                                    <div class="leg"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="figure figure-team1" style="transform: translateX(-35px);">
+                            <div class="figure-body">
+                                <div class="head"></div>
+                                <div class="torso"></div>
+                                <div class="arm"></div>
+                                <div class="legs">
+                                    <div class="leg"></div>
+                                    <div class="leg"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="team-figures team2-figures" id="figures2">
+                        <div class="figure figure-team2">
+                            <div class="figure-body">
+                                <div class="head"></div>
+                                <div class="torso"></div>
+                                <div class="arm"></div>
+                                <div class="legs">
+                                    <div class="leg"></div>
+                                    <div class="leg"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="figure figure-team2" style="transform: translateX(35px) scaleX(-1);">
+                            <div class="figure-body">
+                                <div class="head"></div>
+                                <div class="torso"></div>
+                                <div class="arm"></div>
+                                <div class="legs">
+                                    <div class="leg"></div>
+                                    <div class="leg"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="rope" id="rope"></div>
+                    <div class="flag" id="flag"></div>
+                </div>
+            </div>
+
+            <!-- Team 2 Panel -->
+            <div class="team-panel team2">
+                <div class="team-header">
+                    <span class="team-name">Team 2</span>
+                    <span class="score-badge" id="badge2">0</span>
+                </div>
+                <div class="problem" id="problem2">9 + 6 = ?</div>
+                <div class="answer-display" id="display2"></div>
+                <div class="keypad">
+                    <button class="key" onclick="addDigit(2, 1)">1</button>
+                    <button class="key" onclick="addDigit(2, 2)">2</button>
+                    <button class="key" onclick="addDigit(2, 3)">3</button>
+                    <button class="key" onclick="addDigit(2, 4)">4</button>
+                    <button class="key" onclick="addDigit(2, 5)">5</button>
+                    <button class="key" onclick="addDigit(2, 6)">6</button>
+                    <button class="key" onclick="addDigit(2, 7)">7</button>
+                    <button class="key" onclick="addDigit(2, 8)">8</button>
+                    <button class="key" onclick="addDigit(2, 9)">9</button>
+                    <button class="key clear" onclick="clearAnswer(2)">✕</button>
+                    <button class="key" onclick="addDigit(2, 0)">0</button>
+                    <button class="key submit" onclick="submitAnswer(2)">✓</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Winner Modal -->
+    <div class="winner-modal" id="winnerModal">
+        <div class="winner-card">
+            <div class="trophy">🏆</div>
+            <h2 class="winner-title" id="winnerTitle">Team 1 Wins!</h2>
+            <p class="winner-subtitle" id="winnerSubtitle">Fantastic performance! 🎉</p>
+            <div class="stats">
+                <div class="stat">
+                    <div class="stat-value" id="winnerScore">6</div>
+                    <div class="stat-label">Correct Answers</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-value" id="finalTime">00:37</div>
+                    <div class="stat-label">Time</div>
+                </div>
+            </div>
+            <button class="play-again" onclick="resetGame()">↻ PLAY AGAIN</button>
+        </div>
+    </div>
+
+    <script>
+        // Game State
+        let scores = { 1: 0, 2: 0 };
+        let currentAnswers = { 1: '', 2: '' };
+        let problems = { 1: null, 2: null };
+        let ropePosition = 0;
+        let startTime = Date.now();
+        let timerInterval;
+        let gameEnded = false;
+        let lastCommentaryTime = 0;
+        let consecutiveWins = { 1: 0, 2: 0 };
+
+        // Audio State
+        let musicEnabled = true;
+        let voiceEnabled = true;
+        let audioContext = null;
+        let musicOscillator = null;
+        let musicGain = null;
+
+        // Commentary Lines
+        const commentaries = {
+            neutral: [
+                "Welcome to Tug of War Mathematics! May the best team win!",
+                "It's a close match! Both teams need to focus!",
+                "The tension is building! Who will pull first?",
+                "Great atmosphere here! Come on teams, show your math skills!",
+                "This is exciting! Keep those brains working!",
+                "Nigeria's future mathematicians in action!",
+                "What a competition we have here today!"
+            ],
+            team1Leading: [
+                "Team Blue is showing incredible strength!",
+                "Team 1 is on fire! Can they maintain this momentum?",
+                "Excellent work Team 1! You're pulling away!",
+                "Team Blue is dominating right now!",
+                "What a performance from Team 1! Keep it up!",
+                "Team 1 is unstoppable! Amazing math skills!",
+                "The Blue team is running away with this!"
+            ],
+            team2Leading: [
+                "Team Red is fighting back hard!",
+                "Team 2 is finding their rhythm! Look at them go!",
+                "Incredible comeback from Team 2!",
+                "The Red team is not giving up! What spirit!",
+                "Team 2 is on a roll! Can they take the lead?",
+                "Fantastic effort from Team 2! Keep pushing!",
+                "Team Red showing real determination!"
+            ],
+            team1Correct: [
+                "Brilliant answer from Team 1!",
+                "Team Blue strikes again! Well done!",
+                "Perfect calculation! Team 1 pulls the rope!",
+                "That's how it's done! Team 1 is on point!",
+                "Sharp thinking from the Blue team!",
+                "Correct! Team 1 shows their class!",
+                "Team 1 with another perfect answer!"
+            ],
+            team2Correct: [
+                "Excellent work from Team 2!",
+                "Team Red hits back with a correct answer!",
+                "Great math skills from Team 2!",
+                "That's right! Team 2 pulls the rope their way!",
+                "Fantastic calculation from the Red team!",
+                "Team 2 is on the board! Well done!",
+                "Correct answer! Team 2 stays in the fight!"
+            ],
+            team1Wrong: [
+                "Oh no Team 1, that's not quite right. Try again!",
+                "Team Blue stumbles, but they can recover!",
+                "Not this time Team 1, keep your heads up!",
+                "Mistake from Team 1, but the game isn't over!",
+                "Team Blue needs to focus! You can do it!",
+                "Wrong answer Team 1, but don't give up!",
+                "That's okay Team 1, next question coming up!"
+            ],
+            team2Wrong: [
+                "Team Red misses that one, but stay strong!",
+                "Not correct Team 2, but keep fighting!",
+                "Team 2 makes an error, but the match continues!",
+                "Wrong answer, but Team Red can still win this!",
+                "Don't worry Team 2, you'll get the next one!",
+                "Team 2 needs to regroup! You can do it!",
+                "That's not it Team 2, but keep your spirits up!"
+            ],
+            closeGame: [
+                "It's neck and neck! What a match!",
+                "Too close to call! Every answer counts!",
+                "This could go either way! The pressure is on!",
+                "What a tight contest! Who will break the deadlock?",
+                "It's anyone's game right now! Exciting stuff!"
+            ],
+            team1Winner: [
+                "TEAM 1 ARE THE CHAMPIONS! What a performance!",
+                "VICTORY FOR TEAM BLUE! Absolutely dominant!",
+                "TEAM 1 WINS! Nigeria's math champions!",
+                "The Blue team takes the trophy! Congratulations!",
+                "TEAM 1 ARE VICTORIOUS! Well deserved win!"
+            ],
+            team2Winner: [
+                "TEAM 2 TAKES THE TITLE! Incredible victory!",
+                "RED TEAM WINS! What a fantastic effort!",
+                "TEAM 2 ARE THE CHAMPIONS! Amazing comeback!",
+                "Victory for Team Red! You earned it!",
+                "TEAM 2 WINS! The celebrations begin!"
+            ]
+        };
+
+        // Initialize Audio Context
+        function initAudio() {
+            if (!audioContext) {
+                audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            }
+        }
+
+        // Background Music - Cheerful African-inspired rhythm
+        function playBackgroundMusic() {
+            if (!musicEnabled || !audioContext) return;
+            
+            const now = audioContext.currentTime;
+            const tempo = 0.4; // seconds per beat
+            
+            // Create drum-like rhythm
+            const playBeat = (time, freq, duration, gain) => {
+                const osc = audioContext.createOscillator();
+                const g = audioContext.createGain();
+                
+                osc.frequency.setValueAtTime(freq, time);
+                osc.type = 'sine';
+                
+                g.gain.setValueAtTime(gain, time);
+                g.gain.exponentialRampToValueAtTime(0.01, time + duration);
+                
+                osc.connect(g);
+                g.connect(audioContext.destination);
+                
+                osc.start(time);
+                osc.stop(time + duration);
+            };
+
+            // Play rhythmic pattern
+            for (let i = 0; i < 8; i++) {
+                const t = now + i * tempo;
+                playBeat(t, 200, 0.1, 0.3);
+                if (i % 2 === 0) playBeat(t, 150, 0.15, 0.4);
+                if (i % 4 === 0) playBeat(t, 100, 0.2, 0.5);
+            }
+
+            // Schedule next loop
+            if (musicEnabled) {
+                setTimeout(() => playBackgroundMusic(), tempo * 8 * 1000);
+            }
+        }
+
+        // Text to Speech
+        function speak(text, priority = false) {
+            if (!voiceEnabled) return;
+            
+            // Cancel previous speech if high priority
+            if (priority) {
+                window.speechSynthesis.cancel();
+            } else if (window.speechSynthesis.speaking) {
+                return; // Don't interrupt current speech
+            }
+
+            const utterance = new SpeechSynthesisUtterance(text);
+            utterance.rate = 1;
+            utterance.pitch = 1.1;
+            utterance.volume = 1;
+            
+            // Try to find a good voice
+            const voices = window.speechSynthesis.getVoices();
+            const preferredVoice = voices.find(v => v.lang.includes('en') && (v.name.includes('Google') || v.name.includes('Samantha') || v.name.includes('Daniel')));
+            if (preferredVoice) {
+                utterance.voice = preferredVoice;
+            }
+            
+            window.speechSynthesis.speak(utterance);
+        }
+
+        // Toggle functions
+        function toggleMusic() {
+            musicEnabled = !musicEnabled;
+            document.getElementById('musicBtn').classList.toggle('muted', !musicEnabled);
+            if (musicEnabled) {
+                initAudio();
+                playBackgroundMusic();
+            }
+        }
+
+        function toggleVoice() {
+            voiceEnabled = !voiceEnabled;
+            document.getElementById('voiceBtn').classList.toggle('muted', !voiceEnabled);
+        }
+
+        // Get random commentary
+        function getRandomCommentary(category) {
+            const lines = commentaries[category];
+            return lines[Math.floor(Math.random() * lines.length)];
+        }
+
+        // Update commentary bar
+        function updateCommentary(text, speakIt = true) {
+            const bar = document.getElementById('commentary');
+            bar.textContent = text;
+            bar.style.animation = 'none';
+            setTimeout(() => bar.style.animation = 'glow 2s ease-in-out infinite alternate', 10);
+            
+            if (speakIt && voiceEnabled) {
+                speak(text);
+            }
+        }
+
+        // Determine game state for commentary
+        function getGameState() {
+            const diff = scores[1] - scores[2];
+            const total = scores[1] + scores[2];
+            
+            if (total === 0) return 'neutral';
+            if (Math.abs(diff) <= 1 && total > 2) return 'closeGame';
+            if (diff >= 2) return 'team1Leading';
+            if (diff <= -2) return 'team2Leading';
+            return 'neutral';
+        }
+
+        // Periodic commentary
+        function startCommentaryLoop() {
+            setInterval(() => {
+                if (gameEnded) return;
+                
+                const now = Date.now();
+                if (now - lastCommentaryTime > 8000) { // Comment every 8 seconds if quiet
+                    const state = getGameState();
+                    const text = getRandomCommentary(state);
+                    updateCommentary(text, true);
+                    lastCommentaryTime = now;
+                }
+            }, 2000);
+        }
+
+        // Initialize game
+        function init() {
+            generateProblem(1);
+            generateProblem(2);
+            startTimer();
+            updateDisplay();
+            startCommentaryLoop();
+            
+            // Initialize audio on first interaction
+            document.addEventListener('click', () => {
+                initAudio();
+                if (musicEnabled) playBackgroundMusic();
+            }, { once: true });
+        }
+
+        // Generate random math problem
+        function generateProblem(team) {
+            const operations = ['+', '-'];
+            const operation = operations[Math.floor(Math.random() * operations.length)];
+            let num1, num2, answer;
+            
+            if (operation === '+') {
+                num1 = Math.floor(Math.random() * 15) + 1;
+                num2 = Math.floor(Math.random() * 15) + 1;
+                answer = num1 + num2;
+            } else {
+                num1 = Math.floor(Math.random() * 15) + 5;
+                num2 = Math.floor(Math.random() * num1);
+                answer = num1 - num2;
+            }
+            
+            problems[team] = { num1, num2, operation, answer };
+            document.getElementById(`problem${team}`).textContent = `${num1} ${operation} ${num2} = ?`;
+        }
+
+        // Add digit to answer
+        function addDigit(team, digit) {
+            if (gameEnded) return;
+            if (currentAnswers[team].length < 3) {
+                currentAnswers[team] += digit;
+                updateDisplay();
+                
+                // Play click sound
+                if (audioContext) {
+                    const osc = audioContext.createOscillator();
+                    const gain = audioContext.createGain();
+                    osc.frequency.setValueAtTime(800, audioContext.currentTime);
+                    osc.frequency.exponentialRampToValueAtTime(400, audioContext.currentTime + 0.1);
+                    gain.gain.setValueAtTime(0.1, audioContext.currentTime);
+                    gain.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.1);
+                    osc.connect(gain);
+                    gain.connect(audioContext.destination);
+                    osc.start();
+                    osc.stop(audioContext.currentTime + 0.1);
+                }
+            }
+        }
+
+        // Clear answer
+        function clearAnswer(team) {
+            if (gameEnded) return;
+            currentAnswers[team] = '';
+            const display = document.getElementById(`display${team}`);
+            display.textContent = '';
+            display.classList.remove('correct', 'wrong');
+        }
+
+        // Submit answer
+        function submitAnswer(team) {
+            if (gameEnded || currentAnswers[team] === '') return;
+            
+            const answer = parseInt(currentAnswers[team]);
+            const correct = answer === problems[team].answer;
+            const display = document.getElementById(`display${team}`);
+            const otherTeam = team === 1 ? 2 : 1;
+            
+            if (correct) {
+                display.classList.add('correct');
+                display.classList.remove('wrong');
+                scores[team]++;
+                consecutiveWins[team]++;
+                consecutiveWins[otherTeam] = 0;
+                
+                // Commentary for correct answer
+                const comment = getRandomCommentary(`team${team}Correct`);
+                updateCommentary(comment, true);
+                lastCommentaryTime = Date.now();
+                
+                // Move rope
+                const moveAmount = 12;
+                ropePosition += (team === 1) ? -moveAmount : moveAmount;
+                updateRopePosition();
+                
+                // Pull animation
+                document.getElementById('rope').classList.add('pull-animation');
+                setTimeout(() => document.getElementById('rope').classList.remove('pull-animation'), 300);
+                
+                // Check winner
+                if (Math.abs(ropePosition) >= 100) {
+                    setTimeout(() => endGame(team), 500);
+                } else {
+                    setTimeout(() => {
+                        currentAnswers[team] = '';
+                        display.classList.remove('correct');
+                        generateProblem(team);
+                        updateDisplay();
+                    }, 600);
+                }
+            } else {
+                display.classList.add('wrong');
+                display.classList.remove('correct');
+                consecutiveWins[team] = 0;
+                
+                // Commentary for wrong answer
+                const comment = getRandomCommentary(`team${team}Wrong`);
+                updateCommentary(comment, true);
+                lastCommentaryTime = Date.now();
+                
+                setTimeout(() => {
+                    currentAnswers[team] = '';
+                    display.classList.remove('wrong');
+                    updateDisplay();
+                }, 600);
+            }
+            
+            updateDisplay();
+        }
+
+        // Update rope position
+        function updateRopePosition() {
+            const rope = document.getElementById('rope');
+            const flag = document.getElementById('flag');
+            const figures1 = document.getElementById('figures1');
+            const figures2 = document.getElementById('figures2');
+            
+            const offset = ropePosition * 1.2;
+            
+            rope.style.transform = `translateY(-50%) translateX(${offset}px)`;
+            flag.style.transform = `translate(calc(-50% + ${offset}px), -50%)`;
+            figures1.style.transform = `translateX(${offset}px)`;
+            figures2.style.transform = `translateX(${offset}px)`;
+        }
+
+        // Update display
+        function updateDisplay() {
+            document.getElementById('display1').textContent = currentAnswers[1];
+            document.getElementById('display2').textContent = currentAnswers[2];
+            document.getElementById('score1').textContent = scores[1];
+            document.getElementById('score2').textContent = scores[2];
+            document.getElementById('badge1').textContent = scores[1];
+            document.getElementById('badge2').textContent = scores[2];
+        }
+
+        // Timer
+        function startTimer() {
+            timerInterval = setInterval(() => {
+                if (gameEnded) return;
+                const elapsed = Math.floor((Date.now() - startTime) / 1000);
+                const minutes = Math.floor(elapsed / 60).toString().padStart(2, '0');
+                const seconds = (elapsed % 60).toString().padStart(2, '0');
+                document.getElementById('timer').textContent = `${minutes}:${seconds}`;
+            }, 1000);
+        }
+
+        // End game
+        function endGame(winner) {
+            gameEnded = true;
+            clearInterval(timerInterval);
+            
+            const finalTime = document.getElementById('timer').textContent;
+            const winnerName = `Team ${winner}`;
+            
+            // Winner commentary
+            const winComment = getRandomCommentary(`team${winner}Winner`);
+            updateCommentary(winComment, true);
+            
+            document.getElementById('winnerTitle').textContent = `${winnerName} Wins!`;
+            document.getElementById('winnerTitle').className = `winner-title team${winner}-win`;
+            document.getElementById('winnerScore').textContent = scores[winner];
+            document.getElementById('finalTime').textContent = finalTime;
+            
+            // Custom subtitle based on margin
+            const margin = Math.abs(scores[1] - scores[2]);
+            const subtitles = [
+                "That was a close finish! Well played both teams!",
+                "Great effort! A well-deserved victory!",
+                "Dominant performance! Absolutely fantastic!",
+                "A crushing victory! Outstanding mathematics!"
+            ];
+            document.getElementById('winnerSubtitle').textContent = subtitles[Math.min(margin, 3)];
+            
+            document.getElementById('winnerModal').classList.add('show');
+            
+            // Victory music
+            if (audioContext) {
+                const playVictoryNote = (freq, time, duration) => {
+                    const osc = audioContext.createOscillator();
+                    const gain = audioContext.createGain();
+                    osc.frequency.setValueAtTime(freq, time);
+                    osc.type = 'sine';
+                    gain.gain.setValueAtTime(0.4, time);
+                    gain.gain.exponentialRampToValueAtTime(0.01, time + duration);
+                    osc.connect(gain);
+                    gain.connect(audioContext.destination);
+                    osc.start(time);
+                    osc.stop(time + duration);
+                };
+                
+                const now = audioContext.currentTime;
+                playVictoryNote(523.25, now, 0.2); // C5
+                playVictoryNote(659.25, now + 0.2, 0.2); // E5
+                playVictoryNote(783.99, now + 0.4, 0.4); // G5
+                playVictoryNote(1046.50, now + 0.8, 0.8); // C6
+            }
+            
+            // Confetti
+            for (let i = 0; i < 60; i++) {
+                setTimeout(() => createConfetti(), i * 40);
+            }
+        }
+
+        // Create confetti
+        function createConfetti() {
+            const colors = ['#2196F3', '#f44336', '#FFD700', '#4CAF50', '#9C27B0', '#FF9800'];
+            const confetti = document.createElement('div');
+            confetti.className = 'confetti';
+            confetti.style.left = Math.random() * 100 + 'vw';
+            confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+            confetti.style.animationDuration = (Math.random() * 2 + 2) + 's';
+            document.body.appendChild(confetti);
+            setTimeout(() => confetti.remove(), 4000);
+        }
+
+        // Reset game
+        function resetGame() {
+            scores = { 1: 0, 2: 0 };
+            currentAnswers = { 1: '', 2: '' };
+            ropePosition = 0;
+            consecutiveWins = { 1: 0, 2: 0 };
+            gameEnded = false;
+            startTime = Date.now();
+            lastCommentaryTime = Date.now();
+            
+            document.getElementById('winnerModal').classList.remove('show');
+            document.getElementById('display1').classList.remove('correct', 'wrong');
+            document.getElementById('display2').classList.remove('correct', 'wrong');
+            
+            updateRopePosition();
+            updateCommentary("New game started! May the best team win!", true);
+            init();
+        }
+
+        // Start game
+        window.addEventListener('load', () => {
+            // Load voices for speech synthesis
+            window.speechSynthesis.getVoices();
+            init();
+        });
+
+        // Handle visibility change
+        document.addEventListener('visibilitychange', () => {
+            if (document.hidden) {
+                window.speechSynthesis.cancel();
+            }
+        });
+    </script>
+</body>
+</html>
